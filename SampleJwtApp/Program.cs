@@ -5,7 +5,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using SampleJwtApp.Security.DataAccess;
-using SampleJwtApp.Security.DataAccess.Repositories;
 using SampleJwtApp.Security.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,8 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Transient appropriately and avoiding Singletons
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
-builder.Services.AddTransient<IRepositoryAppUser, RepositoryAppUser>();
-builder.Services.AddTransient<ServiceAppUser, ServiceAppUser>();
+builder.Services.AddTransient<ISecurityService, SecurityService>();
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
