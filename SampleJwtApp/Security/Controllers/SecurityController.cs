@@ -62,6 +62,12 @@ namespace SampleJwtApp.Security.Controllers
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
         }
 
+        /// <summary>
+        /// Tries to authenticate using the credentials supplied.
+        /// </summary>
+        /// <param name="credentials">The credentials, containing the user name and password</param>
+        /// <returns>200 OK with a valid JWT token usable on the other authenticated endpoints,
+        /// or 401 if credentials do not match a valid user</returns>
         [AllowAnonymous]
         [HttpPost]
         [Route("Login")]
