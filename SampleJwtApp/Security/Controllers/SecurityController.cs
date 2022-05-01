@@ -23,7 +23,8 @@ namespace SampleJwtApp.Security.Controllers
         public async Task<IActionResult> Register([FromBody] UserRegistration userRegistration)
         {
             // TODO : more validation is required
-            if (string.IsNullOrEmpty(userRegistration?.Password) || string.IsNullOrEmpty(userRegistration?.Name) || string.IsNullOrEmpty(userRegistration?.Email))
+            if (string.IsNullOrEmpty(userRegistration?.Password) || string.IsNullOrEmpty(userRegistration?.Name) ||
+                string.IsNullOrEmpty(userRegistration?.Email))
             {
                 return BadRequest(new Response { Status = "Error", Message = "Missing data" });
             }
@@ -31,7 +32,8 @@ namespace SampleJwtApp.Security.Controllers
             // TODO: decide if we want to give this information or not, potential security concerns ?
             if (await securityService.UserExistsAsync(userRegistration.Name))
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new Response { Status = "Error", Message = "User already exists!" });
             }
 
             var result = await securityService.AddUserAsync(
@@ -43,7 +45,11 @@ namespace SampleJwtApp.Security.Controllers
             if (result?.Succeeded == false)
             {
                 // TODO: better messages for the obvious errors (password policy etc.)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new Response
+                    {
+                        Status = "Error", Message = "User creation failed! Please check user details and try again."
+                    });
             }
 
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
@@ -72,7 +78,8 @@ namespace SampleJwtApp.Security.Controllers
                 token = new JwtSecurityTokenHandler().WriteToken(token),
                 expiration = token.ValidTo,
                 userName = credentials.UserName,
-                status = "Login successful, token issued, send it back in a Bearer header to authenticate subsequent requests"
+                status =
+                    "Login successful, token issued, send it back in a Bearer header to authenticate subsequent requests"
             });
         }
 
@@ -82,11 +89,13 @@ namespace SampleJwtApp.Security.Controllers
         {
             //TODO: validate that the input is a valid email address ?
 
-            if (await securityService.SendPasswordResetEmailAsync(passwordResetRequest.Email, Request.PathBase + "/front/password-reset"))
+            if (await securityService.SendPasswordResetEmailAsync(passwordResetRequest.Email))
             {
                 return Ok(new
                 {
-                    status = "Success", message = "An email has been sent to the address provided. Please follow the link enclosed to reset your password."
+                    status = "Success",
+                    message =
+                        "An email has been sent to the address provided."
                 });
             }
             else

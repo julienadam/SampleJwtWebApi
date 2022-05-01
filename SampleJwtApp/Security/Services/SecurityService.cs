@@ -93,7 +93,7 @@ namespace SampleJwtApp.Security.Services
             return token;
         }
 
-        public async Task<bool> SendPasswordResetEmailAsync(string email, string baseUrl)
+        public async Task<bool> SendPasswordResetEmailAsync(string email)
         {
             var user = userManager.Users.FirstOrDefault(u => u.Email == email);
             if (user == null)
@@ -101,13 +101,29 @@ namespace SampleJwtApp.Security.Services
                 throw new ArgumentException("No user registered with that email address");
             }
 
-            // Prepare link
+            // Get a reset token
             var token = await userManager.GeneratePasswordResetTokenAsync(user);
 
-            string url = baseUrl + "?token=" + token;
+            // NOTE: This is NOT how password reset should be handled IMHO, but this was specifically required.
+            // NOTE: What should be done is send an email with a link containing the token and provide a web page to
+            // NOTE: let the user set the new password, after validating the token.
+            // NOTE: The obvious flaw here is that anyone with the email address of a person can force a change of password
+            // NOTE: which denies the user in question access to the service...
+            // NOTE: and the other obvious flaw is that the new password is sent in plain text in an email.
+            // NOTE: We could force the user to pick a new password at next login though.
 
-            // Prepare email
-            return await sender.SendEmailAsync(email, "Password reset", url);
+            // Generate a random password
+            var pwd = new PasswordGenerator.Password(true, true, true, true, 12).Next();
+
+            // Change the password using the token
+            var result = await userManager.ResetPasswordAsync(user, token, pwd);
+            if (result.Succeeded == false)
+            {
+                throw new Exception("Failed to reset password");
+            }
+
+            // Send an email with the newly modified password to the user
+            return await sender.SendEmailAsync(email, "Password reset", "New password is : " + pwd);
         }
     }
 }
