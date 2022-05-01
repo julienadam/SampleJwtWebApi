@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SampleJwtApp.Common;
 using SampleJwtApp.Security.Services;
@@ -6,6 +7,10 @@ using SampleJwtApp.Security.ViewModels;
 
 namespace SampleJwtApp.Security.Controllers
 {
+    /// <summary>
+    /// Provides security endpoints for the application.
+    /// <p>Through this API, users will be able to login, change their password, register etc.</p>
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class SecurityController : ControllerBase
@@ -17,6 +22,15 @@ namespace SampleJwtApp.Security.Controllers
             this.securityService = securityService ?? throw new ArgumentNullException(nameof(securityService));
         }
 
+        /// <summary>
+        /// Register as a new user of the service
+        /// </summary>
+        /// <param name="userRegistration"></param>
+        /// <returns>
+        /// <p>200 OK if the user registration information was correct</p>
+        /// <p>400 Bad Request if the user registration information was incorrect (password policy issue, duplicate user name or email etc.</p>
+        /// </returns>
+        [AllowAnonymous]
         [HttpPost]
         [Route("Register")]
         public async Task<IActionResult> Register([FromBody] UserRegistration userRegistration)
@@ -48,6 +62,7 @@ namespace SampleJwtApp.Security.Controllers
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [Route("Login")]
         public async Task<IActionResult> Login([FromBody] Credentials credentials)
