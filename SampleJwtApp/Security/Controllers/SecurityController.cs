@@ -5,107 +5,102 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SampleJwtApp.Common;
+using SampleJwtApp.Security.Services;
 using SampleJwtApp.Security.ViewModels;
-
 namespace SampleJwtApp.Security.Controllers
 {
+    /// <summary>
+    /// Provides security endpoints for the application.
+    /// <p>Through this API, users will be able to login, change their password, register etc.</p>
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class SecurityController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> userManager;
-        private readonly RoleManager<IdentityRole> roleManager;
-        private readonly IConfiguration configuration;
+        private readonly ISecurityService securityService;
 
-        public SecurityController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public SecurityController(ISecurityService securityService)
         {
-            this.userManager = userManager;
-            this.roleManager = roleManager;
-            this.configuration = configuration;
+            this.securityService = securityService ?? throw new ArgumentNullException(nameof(securityService));
         }
 
+        /// <summary>
+        /// Register as a new user of the service
+        /// </summary>
+        /// <param name="userRegistration"></param>
+        /// <returns>
+        /// <p>200 OK if the user registration information was correct</p>
+        /// <p>400 Bad Request if the user registration information was incorrect (password policy issue, duplicate user name or email etc.</p>
+        /// </returns>
+        [AllowAnonymous]
         [HttpPost]
         [Route("Register")]
         public async Task<IActionResult> Register([FromBody] UserRegistration userRegistration)
         {
-            var exists = await userManager.FindByNameAsync(userRegistration.Name);
-            if (exists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
-
-            var appUser = new IdentityUser
+            // TODO : more validation is required
+            if (string.IsNullOrEmpty(userRegistration?.Password) || string.IsNullOrEmpty(userRegistration?.Name) || string.IsNullOrEmpty(userRegistration?.Email))
             {
-                UserName = userRegistration.Name,
-                Email = userRegistration.Email,
-                PhoneNumber = userRegistration.PhoneNo
-            };
+                return BadRequest(new Response { Status = "Error", Message = "Missing data" });
+            }
 
-            var result = await userManager.CreateAsync(appUser, userRegistration.Password);
-            if (!result.Succeeded)
+            // TODO: decide if we want to give this information or not, potential security concerns ?
+            if (await securityService.UserExistsAsync(userRegistration.Name))
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
+            }
+
+            var result = await securityService.AddUserAsync(
+                userRegistration.Name,
+                userRegistration.Email,
+                userRegistration.PhoneNo ?? "",
+                userRegistration.Password);
+
+            if (result?.Succeeded == false)
             {
                 // TODO: better messages for the obvious errors (password policy etc.)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
             }
 
-            // TODO : Add other methods to manage roles
-            //if (!await roleManager.RoleExistsAsync(userRegistration.UserRole))
-            //{
-            //    await roleManager.CreateAsync(new IdentityRole(userRegistration.UserRole));
-            //}
-
-            //if (await roleManager.RoleExistsAsync(userRegistration.UserRole))
-            //{
-            //    await userManager.AddToRoleAsync(appUser, userRegistration.UserRole);
-            //}
-
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
         }
 
+        /// <summary>
+        /// Tries to authenticate using the credentials supplied.
+        /// </summary>
+        /// <param name="credentials">The credentials, containing the user name and password</param>
+        /// <returns>200 OK with a valid JWT token usable on the other authenticated endpoints,
+        /// or 401 if credentials do not match a valid user</returns>
+        [AllowAnonymous]
         [HttpPost]
         [Route("Login")]
         public async Task<IActionResult> Login([FromBody] Credentials credentials)
         {
-            var user = await userManager.FindByNameAsync(credentials.UserName);
-            if (user == null || !await userManager.CheckPasswordAsync(user, credentials.Password))
+            // TODO : more validation is required
+            if (string.IsNullOrEmpty(credentials?.Password) || string.IsNullOrEmpty(credentials?.UserName))
+            {
+                return BadRequest(new Response { Status = "Error", Message = "Missing credentials" });
+            }
+
+            var user = await securityService.AuthenticateUserAsync(credentials.UserName, credentials.Password);
+            if (user == null)
             {
                 return Unauthorized();
             }
 
-
-            var authClaims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.MobilePhone, user.PhoneNumber),
-                    new Claim(ClaimTypes.Email, user.Email),
-                    // JWT specific values, Iss and Aud must be set to the same values as the server's
-                    // otherwise the token will not be valid when used against the api
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(JwtRegisteredClaimNames.Iss, configuration["JsonWebTokenKeys:ValidIssuer"]),
-                    new Claim(JwtRegisteredClaimNames.Aud, configuration["JsonWebTokenKeys:ValidAudience"]),
-                };
-
-            var userRoles = await userManager.GetRolesAsync(user);
-            authClaims.AddRange(userRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole)));
-
-            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JsonWebTokenKeys:SymmetricKey"]));
-
-            var token = new JwtSecurityToken(
-                // TODO : configurable token expiry ?
-                expires: DateTime.Now.AddHours(3),
-                claims: authClaims,
-                signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
-                );
+            var token = await securityService.BuildJwtTokenAsync(user);
 
             return Ok(new
             {
                 token = new JwtSecurityTokenHandler().WriteToken(token),
                 expiration = token.ValidTo,
-                userName = user.UserName,
+                userName = credentials.UserName,
                 status = "Login successful, token issued, send it back in a Bearer header to authenticate subsequent requests"
             });
         }

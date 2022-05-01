@@ -10,7 +10,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SampleJwtApp.Security.DataAccess;
-using SampleJwtApp.Security.DataAccess.Repositories;
 using SampleJwtApp.Security.Services;
 
 namespace SampleJwtApp
@@ -31,8 +30,7 @@ namespace SampleJwtApp
             var connectionString = Configuration.GetConnectionString("DefaultConnection");
 
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
-            services.AddTransient<IRepositoryAppUser, RepositoryAppUser>();
-            services.AddTransient<ServiceAppUser, ServiceAppUser>();
+            services.AddTransient<ISecurityService, SecurityService>();
             services.AddControllers();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -69,6 +67,7 @@ namespace SampleJwtApp
             // Add Identity implementation
             services
                 .AddIdentity<IdentityUser, IdentityRole>()
+                .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<AppDbContext>();
 
             // Add JWT authentication
