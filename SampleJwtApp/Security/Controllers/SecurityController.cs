@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using SampleJwtApp.Common;
 using SampleJwtApp.Security.Services;
@@ -73,6 +74,28 @@ namespace SampleJwtApp.Security.Controllers
                 userName = credentials.UserName,
                 status = "Login successful, token issued, send it back in a Bearer header to authenticate subsequent requests"
             });
+        }
+
+        [HttpPost]
+        [Route("RequestPasswordReset")]
+        public async Task<IActionResult> RequestPasswordReset([FromBody] PasswordResetRequest passwordResetRequest)
+        {
+            //TODO: validate that the input is a valid email address ?
+
+            if (await securityService.SendPasswordResetEmailAsync(passwordResetRequest.Email, Request.PathBase + "/front/password-reset"))
+            {
+                return Ok(new
+                {
+                    status = "Success", message = "An email has been sent to the address provided. Please follow the link enclosed to reset your password."
+                });
+            }
+            else
+            {
+                return StatusCode(500, new
+                {
+                    status = "Password reset email failed to be sent. Please try again later."
+                });
+            }
         }
     }
 }

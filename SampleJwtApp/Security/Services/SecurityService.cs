@@ -11,12 +11,14 @@ namespace SampleJwtApp.Security.Services
         private readonly UserManager<IdentityUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IConfiguration configuration;
+        private readonly IEmailSender sender;
 
-        public SecurityService(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public SecurityService(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IEmailSender sender)
         {
             this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             this.roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
             this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            this.sender = sender ?? throw new ArgumentNullException(nameof(sender));
         }
 
         public async Task<bool> UserExistsAsync(string userName)
@@ -89,6 +91,23 @@ namespace SampleJwtApp.Security.Services
             );
 
             return token;
+        }
+
+        public async Task<bool> SendPasswordResetEmailAsync(string email, string baseUrl)
+        {
+            var user = userManager.Users.FirstOrDefault(u => u.Email == email);
+            if (user == null)
+            {
+                throw new ArgumentException("No user registered with that email address");
+            }
+
+            // Prepare link
+            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+
+            string url = baseUrl + "?token=" + token;
+
+            // Prepare email
+            return await sender.SendEmailAsync(email, "Password reset", url);
         }
     }
 }

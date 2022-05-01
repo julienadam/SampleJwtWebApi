@@ -13,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Transient appropriately and avoiding Singletons
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddSingleton<IEmailSender, LogMailSender>();
 builder.Services.AddTransient<ISecurityService, SecurityService>();
 builder.Services.AddControllers();
 
@@ -51,6 +52,7 @@ builder.Services.AddSwaggerGen(c =>
 builder
     .Services
         .AddIdentity<IdentityUser, IdentityRole>()
+        .AddDefaultTokenProviders()
         .AddEntityFrameworkStores<AppDbContext>();
 
 // Add JWT authentication
