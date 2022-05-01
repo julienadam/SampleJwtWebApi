@@ -1,4 +1,6 @@
-﻿namespace SampleJwtApp.Catalog.ViewModels
+﻿using System;
+
+namespace SampleJwtApp.Catalog.ViewModels
 {
     public class Product
     {
