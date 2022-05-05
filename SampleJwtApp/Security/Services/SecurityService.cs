@@ -4,19 +4,23 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using SampleJwtApp.Common.Email;
+using SampleJwtApp.Security.DataAccess;
+using SampleJwtApp.UserPrefs.DataAccess;
 
 namespace SampleJwtApp.Security.Services
 {
     public class SecurityService : ISecurityService
     {
         private const string AdministratorRoleName = "Administrator";
+        private readonly AppDbContext context;
         private readonly IEmailSender sender;
         private readonly UserManager<IdentityUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IConfiguration configuration;
 
-        public SecurityService(IEmailSender sender, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public SecurityService(AppDbContext context, IEmailSender sender, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
+            this.context = context;
             this.sender = sender ?? throw new ArgumentNullException(nameof(sender));
             this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             this.roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
@@ -42,17 +46,30 @@ namespace SampleJwtApp.Security.Services
                 PhoneNumber = phoneNumber
             };
 
-            if (!userManager.Users.Any())
+
+            var userPrefs = new UserPreferences
+            {
+                Balance = 42.09,
+                User = appUser
+            };
+
+
+            var isFirstUser = !userManager.Users.Any();
+            var user = await userManager.CreateAsync(appUser, password);
+            context.Preferences.Add(userPrefs);
+            await context.SaveChangesAsync();
+
+            if (isFirstUser)
             {
                 // If it is the first user, grant the admin role
-                var user = await userManager.CreateAsync(appUser, password);
                 if (!await roleManager.RoleExistsAsync(AdministratorRoleName))
                 {
                     await roleManager.CreateAsync(new IdentityRole(AdministratorRoleName));
                 }
                 await userManager.AddToRoleAsync(appUser, AdministratorRoleName);
             }
-            return await userManager.CreateAsync(appUser, password);
+
+            return user;
         }
 
         public async Task<IdentityUser?> AuthenticateUserAsync(string username, string password)

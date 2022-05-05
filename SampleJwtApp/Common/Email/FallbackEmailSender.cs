@@ -2,7 +2,7 @@
 {
     public class FallbackEmailSender<T1, T2> : IEmailSender 
         where T1 : IEmailSender 
-        where T2: IEmailSender
+        where T2 : IEmailSender
     {
         private readonly T1 sender1;
         private readonly T2 sender2;

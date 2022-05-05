@@ -15,5 +15,7 @@ namespace SampleJwtApp.Security.DataAccess
         {
             base.OnModelCreating(builder);
         }
+
+        public DbSet<UserPrefs.DataAccess.UserPreferences> Preferences { get; set; }
     }
 }
