@@ -11,4 +11,5 @@ public interface ISecurityService
     Task<SecurityToken> BuildJwtTokenAsync(IdentityUser user);
     Task<bool> SendResetPasswordEmailLink(string email);
     Task<bool> ResetPassword(string userName, string token, string newPassword);
+    Task<bool> EmailExistsAsync(string email);
 }

@@ -38,12 +38,22 @@ namespace SampleJwtWebApi.Tests
             {
                 throw new System.NotImplementedException();
             }
+
+            public Task<bool> ResetPassword(string userName, string token, string newPassword)
+            {
+                throw new System.NotImplementedException();
+            }
+
+            public Task<bool> EmailExistsAsync(string email)
+            {
+                throw new System.NotImplementedException();
+            }
         }
 
         [Fact]
         public async Task Logging_in_without_a_username_fails()
         {
-            SecurityController controller = new SecurityController(new NopeSecurityService(), null);
+            SecurityController controller = new SecurityController(new NopeSecurityService());
             var result = await controller.Login(new Credentials());
             Check.That(result).IsInstanceOf<BadRequestObjectResult>();
         }

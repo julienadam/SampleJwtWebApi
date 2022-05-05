@@ -16,7 +16,11 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddScoped<ISecurityService, SecurityService>();
-builder.Services.AddSingleton<IEmailSender, SendGridEmailSender>();
+builder.Services.AddSingleton<SendGridEmailSender>();
+builder.Services.AddSingleton<SmtpEmailSender>();
+builder.Services.AddSingleton<IEmailSender, FallbackEmailSender<SendGridEmailSender, SmtpEmailSender>>();
+
+//builder.Services.AddSingleton<IEmailSender, SendGridEmailSender>();
 //if (builder.Environment.IsDevelopment())
 //{
 //    builder.Services.AddSingleton<IEmailSender, FakeEmailSender>();

@@ -101,6 +101,11 @@ namespace SampleJwtApp.Security.Controllers
         [Route("RequestPasswordResetEmail")]
         public async Task<IActionResult> RequestPasswordResetEmail(string email)
         {
+            if (!await securityService.EmailExistsAsync(email))
+            {
+                return BadRequest();
+            }
+
             var result = await securityService.SendResetPasswordEmailLink(email);
             if (result)
             {
