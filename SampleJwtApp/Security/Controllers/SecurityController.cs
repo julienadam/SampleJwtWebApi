@@ -91,8 +91,9 @@ namespace SampleJwtApp.Security.Controllers
             {
                 token = new JwtSecurityTokenHandler().WriteToken(token),
                 expiration = token.ValidTo,
-                userName = credentials.UserName,
-                status = "Login successful, token issued, send it back in a Bearer header to authenticate subsequent requests"
+                username = credentials.UserName,
+                email = user.User.Email,
+                roles = user.Roles
             });
         }
 

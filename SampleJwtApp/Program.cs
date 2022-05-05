@@ -9,7 +9,22 @@ using SampleJwtApp.Common.Email;
 using SampleJwtApp.Security.DataAccess;
 using SampleJwtApp.Security.Services;
 
+var corsOrigin = "corsOrigin";
 var builder = WebApplication.CreateBuilder(args);
+
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: corsOrigin,
+        policy =>
+        {
+        //policy.WithOrigins(builder.Configuration["Front:BaseUrl"]);
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+        });
+});
 
 // Add services to the IoC, make sure the DbContext is local to each request by using
 // Transient appropriately and avoiding Singletons
@@ -101,6 +116,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
+app.UseCors(corsOrigin); 
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

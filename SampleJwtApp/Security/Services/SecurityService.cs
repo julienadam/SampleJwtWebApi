@@ -72,12 +72,14 @@ namespace SampleJwtApp.Security.Services
             return user;
         }
 
-        public async Task<IdentityUser?> AuthenticateUserAsync(string username, string password)
+        public async Task<LoggedInUser?> AuthenticateUserAsync(string username, string password)
         {
             var user = await userManager.FindByNameAsync(username);
             if (user != null && await userManager.CheckPasswordAsync(user, password))
             {
-                return user;
+                var userRoles = await userManager.GetRolesAsync(user);
+
+                return new LoggedInUser(user, userRoles);
             }
             else
             {
@@ -85,13 +87,13 @@ namespace SampleJwtApp.Security.Services
             }
         }
         
-        public async Task<SecurityToken> BuildJwtTokenAsync(IdentityUser user)
+        public async Task<SecurityToken> BuildJwtTokenAsync(LoggedInUser loggedInUser)
         {
             var authClaims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.MobilePhone, user.PhoneNumber),
-                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.Name, loggedInUser.User.UserName),
+                    new Claim(ClaimTypes.MobilePhone, loggedInUser.User.PhoneNumber),
+                    new Claim(ClaimTypes.Email, loggedInUser.User.Email),
                     // JWT specific values, Iss and Aud must be set to the same values as the server's
                     // otherwise the token will not be valid when used against the api
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
@@ -99,8 +101,7 @@ namespace SampleJwtApp.Security.Services
                     new Claim(JwtRegisteredClaimNames.Aud, configuration["JsonWebTokenKeys:ValidAudience"]),
                 };
 
-            var userRoles = await userManager.GetRolesAsync(user);
-            authClaims.AddRange(userRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole)));
+            authClaims.AddRange(loggedInUser.Roles.Select(userRole => new Claim(ClaimTypes.Role, userRole)));
 
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JsonWebTokenKeys:SymmetricKey"]));
 

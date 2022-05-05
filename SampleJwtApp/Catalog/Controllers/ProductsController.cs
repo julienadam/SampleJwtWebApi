@@ -8,12 +8,13 @@ namespace SampleJwtApp.Catalog.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class ProductsController : ControllerBase
     {
         // GET: api/<ProductsController>
         [HttpGet]
-        public IEnumerable<Product> Get()
+        [Route("AdminOnly")]
+        [Authorize(Roles = "Administrator")]
+        public IEnumerable<Product> GetAdminOnly()
         {
             return new[]
             {
@@ -28,29 +29,33 @@ namespace SampleJwtApp.Catalog.Controllers
             };
         }
 
-        // GET api/<ProductsController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet]
+        [Route("Public")]
+        [AllowAnonymous]
+        public IEnumerable<Product> GetPublicOnly()
         {
-            return "value";
+            return new[]
+            {
+                new Product
+                {
+                    Id = 1, Name = "Feeble Exo-Skeleton Mark I", ReleaseDate = new DateTime(2025, 10, 24)
+                },
+            };
         }
 
-        // POST api/<ProductsController>
-        [HttpPost]
-        public void Post([FromBody] Product value)
-        {
-        }
 
-        // PUT api/<ProductsController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Product value)
+        [HttpGet]
+        [Route("Basic")]
+        [Authorize]
+        public IEnumerable<Product> GetBasicProducts()
         {
-        }
-
-        // DELETE api/<ProductsController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            return new[]
+            {
+                new Product
+                {
+                    Id = 1, Name = "Average Exo-Skeleton Mark II", ReleaseDate = new DateTime(2034, 10, 24)
+                },
+            };
         }
     }
 }
