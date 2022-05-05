@@ -25,6 +25,23 @@ dotnet ef database update
 dotnet user-secrets set "JsonWebTokenKeys:SymmetricKey" "YOUR_KEY"
 ```
 
+## Email setup
+
+### Sendgrid
+
+- The default uses SendGrid, you need a valid account, a valid API key
+  - Disabling click and open tracking in SendGrid is preferred to get valid links during testing
+- Set these secrets :
+
+```
+dotnet user-secrets set "Email:Sender" "A valid email address that can be a sender for the SendGrid service"
+dotnet user-secrets set "Email:Email.SendGrid.ApiKey" "A valid SendGrid API Key"
+```
+
+### Alternatives
+
+- Either use the SMTP email sender or the Fake email sender (change the service registration in Program.cs to use SmtpClientEmailSender or FakeEmailSender)
+
 ---
 
 # Run the app

@@ -33,12 +33,17 @@ namespace SampleJwtWebApi.Tests
             {
                 throw new System.NotImplementedException();
             }
+
+            public Task<bool> SendResetPasswordEmailLink(string email)
+            {
+                throw new System.NotImplementedException();
+            }
         }
 
         [Fact]
         public async Task Logging_in_without_a_username_fails()
         {
-            SecurityController controller = new SecurityController(new NopeSecurityService());
+            SecurityController controller = new SecurityController(new NopeSecurityService(), null);
             var result = await controller.Login(new Credentials());
             Check.That(result).IsInstanceOf<BadRequestObjectResult>();
         }

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using SampleJwtApp.Common.Email;
 using SampleJwtApp.Security.DataAccess;
 using SampleJwtApp.Security.Services;
 
@@ -14,7 +15,17 @@ var builder = WebApplication.CreateBuilder(args);
 // Transient appropriately and avoiding Singletons
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
-builder.Services.AddTransient<ISecurityService, SecurityService>();
+builder.Services.AddScoped<ISecurityService, SecurityService>();
+builder.Services.AddSingleton<IEmailSender, SendGridEmailSender>();
+//if (builder.Environment.IsDevelopment())
+//{
+//    builder.Services.AddSingleton<IEmailSender, FakeEmailSender>();
+//}
+//else
+//{
+//    builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+//}
+
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -55,6 +66,7 @@ builder.Services.AddSwaggerGen(options =>
 builder
     .Services
         .AddIdentity<IdentityUser, IdentityRole>()
+        .AddDefaultTokenProviders()
         .AddEntityFrameworkStores<AppDbContext>();
 
 // Add JWT authentication
@@ -96,3 +108,4 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
+

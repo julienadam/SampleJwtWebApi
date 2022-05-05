@@ -2,14 +2,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SampleJwtApp.Common;
+using SampleJwtApp.Common.Email;
 using SampleJwtApp.Security.Services;
 using SampleJwtApp.Security.ViewModels;
 
 namespace SampleJwtApp.Security.Controllers
 {
     /// <summary>
-    /// Provides security endpoints for the application.
-    /// <p>Through this API, users will be able to login, change their password, register etc.</p>
+    /// Handles security
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
@@ -25,7 +25,7 @@ namespace SampleJwtApp.Security.Controllers
         /// <summary>
         /// Register as a new user of the service
         /// </summary>
-        /// <param name="userRegistration"></param>
+        /// <param name="userRegistration">Details about the user</param>
         /// <returns>
         /// <p>200 OK if the user registration information was correct</p>
         /// <p>400 Bad Request if the user registration information was incorrect (password policy issue, duplicate user name or email etc.</p>
@@ -94,6 +94,38 @@ namespace SampleJwtApp.Security.Controllers
                 userName = credentials.UserName,
                 status = "Login successful, token issued, send it back in a Bearer header to authenticate subsequent requests"
             });
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("RequestPasswordResetEmail")]
+        public async Task<IActionResult> RequestPasswordResetEmail(string email)
+        {
+            var result = await securityService.SendResetPasswordEmailLink(email);
+            if (result)
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("ResetPassword")]
+        public async Task<IActionResult> ResetPassword(string username, string token, string newpassword)
+        {
+            var result = await securityService.ResetPassword(username, token, newpassword);
+            if (result)
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
     }
 }

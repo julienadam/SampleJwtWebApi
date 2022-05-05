@@ -3,20 +3,29 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using SampleJwtApp.Common.Email;
 
 namespace SampleJwtApp.Security.Services
 {
     public class SecurityService : ISecurityService
     {
+        private const string AdministratorRoleName = "Administrator";
+        private readonly IEmailSender sender;
         private readonly UserManager<IdentityUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IConfiguration configuration;
 
-        public SecurityService(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public SecurityService(IEmailSender sender, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
+            this.sender = sender ?? throw new ArgumentNullException(nameof(sender));
             this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             this.roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
             this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        }
+
+        public async Task<bool> EmailExistsAsync(string email)
+        {
+            return await userManager.FindByEmailAsync(email) != null;
         }
 
         public async Task<bool> UserExistsAsync(string userName)
@@ -33,20 +42,17 @@ namespace SampleJwtApp.Security.Services
                 PhoneNumber = phoneNumber
             };
 
+            if (!userManager.Users.Any())
+            {
+                // If it is the first user, grant the admin role
+                var user = await userManager.CreateAsync(appUser, password);
+                if (!await roleManager.RoleExistsAsync(AdministratorRoleName))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(AdministratorRoleName));
+                }
+                await userManager.AddToRoleAsync(appUser, AdministratorRoleName);
+            }
             return await userManager.CreateAsync(appUser, password);
-
-
-            // TODO : Add other methods to manage roles
-            //if (!await roleManager.RoleExistsAsync(userRegistration.UserRole))
-            //{
-            //    await roleManager.CreateAsync(new IdentityRole(userRegistration.UserRole));
-            //}
-
-            //if (await roleManager.RoleExistsAsync(userRegistration.UserRole))
-            //{
-            //    await userManager.AddToRoleAsync(appUser, userRegistration.UserRole);
-            //}
-
         }
 
         public async Task<IdentityUser?> AuthenticateUserAsync(string username, string password)
@@ -89,6 +95,24 @@ namespace SampleJwtApp.Security.Services
             );
 
             return token;
+        }
+
+        public async Task<bool> SendResetPasswordEmailLink(string email)
+        {
+            var user = userManager.Users.First(u => u.Email == email);
+            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+            
+            // TODO: enter the correct page url (this is your front-end page, not the API endpoint !)
+            // TODO: you should get the base url from the configuration
+            var url = $"http://localhost:5234/reset-password?username={user.UserName}&token={token}";
+            return  await sender.SendEmail(email, "Reset password", "Please confirm by clicking the following link.\r\n\r\n" + url);
+        }
+
+        public async Task<bool> ResetPassword(string userName, string token, string newPassword)
+        {
+            var user = userManager.Users.First(u => u.UserName == userName);
+            var result = await userManager.ResetPasswordAsync(user, token, newPassword);
+            return result.Succeeded;
         }
     }
 }
