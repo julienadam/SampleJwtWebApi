@@ -24,12 +24,12 @@ namespace SampleJwtWebApi.Tests
                 throw new System.NotImplementedException();
             }
 
-            public Task<IdentityUser?> AuthenticateUserAsync(string username, string password)
+            public Task<LoggedInUser?> AuthenticateUserAsync(string username, string password)
             {
                 throw new System.NotImplementedException();
             }
 
-            public Task<SecurityToken> BuildJwtTokenAsync(IdentityUser user)
+            public Task<SecurityToken> BuildJwtTokenAsync(LoggedInUser user)
             {
                 throw new System.NotImplementedException();
             }
@@ -53,7 +53,7 @@ namespace SampleJwtWebApi.Tests
         [Fact]
         public async Task Logging_in_without_a_username_fails()
         {
-            SecurityController controller = new SecurityController(new NopeSecurityService());
+            var controller = new SecurityController(new NopeSecurityService());
             var result = await controller.Login(new Credentials());
             Check.That(result).IsInstanceOf<BadRequestObjectResult>();
         }

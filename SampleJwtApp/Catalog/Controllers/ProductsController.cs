@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SampleJwtApp.Catalog.ViewModels;
+using SampleJwtApp.Common;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -13,7 +14,7 @@ namespace SampleJwtApp.Catalog.Controllers
         // GET: api/<ProductsController>
         [HttpGet]
         [Route("AdminOnly")]
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = RoleDefinitions.AdministratorRoleName)]
         public IEnumerable<Product> GetAdminOnly()
         {
             return new[]

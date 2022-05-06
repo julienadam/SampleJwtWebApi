@@ -18,9 +18,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: corsOrigin,
         policy =>
         {
-        //policy.WithOrigins(builder.Configuration["Front:BaseUrl"]);
         policy
-            .AllowAnyOrigin()
+            .WithOrigins(builder.Configuration["Front:BaseUrl"])
             .AllowAnyMethod()
             .AllowAnyHeader();
         });

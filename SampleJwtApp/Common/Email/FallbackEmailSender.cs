@@ -24,7 +24,7 @@
                     return true;
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 logger.LogError($"Could not send email with {typeof(T1)}, trying {typeof(T2)}");
             }

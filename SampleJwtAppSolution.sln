@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleJwtWebApi.Tests", "SampleJwtWebApi.Tests\SampleJwtWebApi.Tests.csproj", "{BA4A8770-37A6-4781-B58C-C7DE9BC406DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleJwtWebApi.Tests", "SampleJwtWebApi.Tests\SampleJwtWebApi.Tests.csproj", "{BA4A8770-37A6-4781-B58C-C7DE9BC406DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

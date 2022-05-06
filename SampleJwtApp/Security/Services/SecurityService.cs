@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using SampleJwtApp.Common;
 using SampleJwtApp.Common.Email;
 using SampleJwtApp.Security.DataAccess;
 using SampleJwtApp.UserPrefs.DataAccess;
@@ -11,7 +12,6 @@ namespace SampleJwtApp.Security.Services
 {
     public class SecurityService : ISecurityService
     {
-        private const string AdministratorRoleName = "Administrator";
         private readonly AppDbContext context;
         private readonly IEmailSender sender;
         private readonly UserManager<IdentityUser> userManager;
@@ -62,11 +62,11 @@ namespace SampleJwtApp.Security.Services
             if (isFirstUser)
             {
                 // If it is the first user, grant the admin role
-                if (!await roleManager.RoleExistsAsync(AdministratorRoleName))
+                if (!await roleManager.RoleExistsAsync(RoleDefinitions.AdministratorRoleName))
                 {
-                    await roleManager.CreateAsync(new IdentityRole(AdministratorRoleName));
+                    await roleManager.CreateAsync(new IdentityRole(RoleDefinitions.AdministratorRoleName));
                 }
-                await userManager.AddToRoleAsync(appUser, AdministratorRoleName);
+                await userManager.AddToRoleAsync(appUser, RoleDefinitions.AdministratorRoleName);
             }
 
             return user;
