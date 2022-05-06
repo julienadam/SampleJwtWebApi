@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.IdentityModel.Tokens;
 using SampleJwtApp.Common;
 using SampleJwtApp.Common.DataAccess;
@@ -18,6 +19,7 @@ namespace SampleJwtApp.Security.Services
         private readonly UserManager<IdentityUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IConfiguration configuration;
+        private string? frontUrl;
 
         public SecurityService(AppDbContext context, IEmailSender sender, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
@@ -121,9 +123,8 @@ namespace SampleJwtApp.Security.Services
             var user = userManager.Users.First(u => u.Email == email);
             var token = await userManager.GeneratePasswordResetTokenAsync(user);
             
-            // TODO: enter the correct page url (this is your front-end page, not the API endpoint !)
-            // TODO: you should get the base url from the configuration
-            var url = $"http://localhost:5234/reset-password?username={user.UserName}&token={token}";
+            frontUrl = configuration["Front:BaseUrl"];
+            var url = $"{frontUrl}/reset-password.html?username={Uri.EscapeDataString(user.UserName)}&token={token}";
             return  await sender.SendEmail(email, "Reset password", "Please confirm by clicking the following link.\r\n\r\n" + url);
         }
 
