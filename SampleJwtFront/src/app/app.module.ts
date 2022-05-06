@@ -13,6 +13,7 @@ import { BoardUserComponent } from './board-user/board-user.component';
 import { authInterceptorProviders } from './_helpers/auth.interceptor';
 import { APP_BASE_HREF } from '@angular/common';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { RequestResetPasswordComponent } from './request-reset-password/request-reset-password.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -22,7 +23,8 @@ import { ResetPasswordComponent } from './reset-password/reset-password.componen
     ProfileComponent,
     BoardAdminComponent,
     BoardUserComponent,
-    ResetPasswordComponent
+    ResetPasswordComponent,
+    RequestResetPasswordComponent
   ],
   imports: [
     BrowserModule,

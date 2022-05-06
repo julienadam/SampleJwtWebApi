@@ -7,6 +7,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { BoardUserComponent } from './board-user/board-user.component';
 import { BoardAdminComponent } from './board-admin/board-admin.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { RequestResetPasswordComponent } from './request-reset-password/request-reset-password.component';
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'login', component: LoginComponent },
@@ -15,6 +16,7 @@ const routes: Routes = [
   { path: 'user', component: BoardUserComponent },
   { path: 'admin', component: BoardAdminComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
+  { path: 'request-reset-password', component: RequestResetPasswordComponent },
   { path: '', redirectTo: 'home', pathMatch: 'full' }
 ];
 @NgModule({

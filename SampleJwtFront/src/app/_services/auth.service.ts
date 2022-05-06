@@ -11,6 +11,7 @@ const httpOptions = {
   providedIn: 'root'
 })
 export class AuthService {
+  
   constructor(private http: HttpClient) { }
   login(username: string, password: string): Observable<any> {
     return this.http.post(API_URL + 'Login', {
@@ -33,6 +34,12 @@ export class AuthService {
       username,
       token,
       newpassword : password
+    }, httpOptions);
+  }
+
+  requestResetPassword(email: string) {
+    return this.http.post(API_URL + 'RequestPasswordResetEmail', {
+      email
     }, httpOptions);
   }
 }
