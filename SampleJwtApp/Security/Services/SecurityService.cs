@@ -4,9 +4,10 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using SampleJwtApp.Common;
+using SampleJwtApp.Common.DataAccess;
 using SampleJwtApp.Common.Email;
-using SampleJwtApp.Security.DataAccess;
-using SampleJwtApp.UserPrefs.DataAccess;
+using SampleJwtApp.Security.Models;
+using SampleJwtApp.UserPrefs.Entities;
 
 namespace SampleJwtApp.Security.Services
 {

@@ -5,8 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using SampleJwtApp.Common.DataAccess;
 using SampleJwtApp.Common.Email;
-using SampleJwtApp.Security.DataAccess;
 using SampleJwtApp.Security.Services;
 
 var corsOrigin = "corsOrigin";

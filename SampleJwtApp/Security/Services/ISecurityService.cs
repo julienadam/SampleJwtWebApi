@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using SampleJwtApp.Security.Models;
 
 namespace SampleJwtApp.Security.Services;
 

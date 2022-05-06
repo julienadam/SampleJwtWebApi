@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using SampleJwtApp.UserPrefs.Entities;
 
-namespace SampleJwtApp.Security.DataAccess
+namespace SampleJwtApp.Common.DataAccess
 {
     public class AppDbContext : IdentityDbContext<IdentityUser>
     {
@@ -16,6 +17,6 @@ namespace SampleJwtApp.Security.DataAccess
             base.OnModelCreating(builder);
         }
 
-        public DbSet<UserPrefs.DataAccess.UserPreferences> Preferences { get; set; }
+        public DbSet<UserPreferences> Preferences { get; set; }
     }
 }

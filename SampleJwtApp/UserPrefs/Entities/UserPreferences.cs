@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace SampleJwtApp.UserPrefs.DataAccess
+namespace SampleJwtApp.UserPrefs.Entities
 {
     public class UserPreferences
     {

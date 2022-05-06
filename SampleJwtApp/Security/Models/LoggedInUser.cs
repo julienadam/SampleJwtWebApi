@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace SampleJwtApp.Security.Services;
+namespace SampleJwtApp.Security.Models;
 
 public class LoggedInUser
 {

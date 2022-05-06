@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using NFluent;
 using SampleJwtApp.Security.Controllers;
+using SampleJwtApp.Security.Models;
 using SampleJwtApp.Security.Services;
 using SampleJwtApp.Security.ViewModels;
 using Xunit;
