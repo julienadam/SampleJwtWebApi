@@ -1,14 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
+import { AuthService } from '../_services/auth.service';
 
 import { RequestResetPasswordComponent } from './request-reset-password.component';
 
 describe('RequestResetPasswordComponent', () => {
   let component: RequestResetPasswordComponent;
   let fixture: ComponentFixture<RequestResetPasswordComponent>;
+  let authMock = {};
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ RequestResetPasswordComponent ]
+      imports: [FormsModule],
+      declarations: [ RequestResetPasswordComponent ],
+      providers: [{ provide: AuthService, useValue: authMock }]
     })
     .compileComponents();
   });

@@ -25,8 +25,8 @@ builder.Services.AddCors(options =>
         });
 });
 
-// Add services to the IoC, make sure the DbContext is local to each request by using
-// Transient appropriately and avoiding Singletons
+// Add services to the IoC, make sure the DbContext is not reused by applying
+// AddScoped or Transient appropriately and avoiding AddSingleton
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddScoped<ISecurityService, SecurityService>();
