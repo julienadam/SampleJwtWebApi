@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
+import { AuthService } from '../_services/auth.service';
 
 @Component({
   selector: 'app-reset-password',
@@ -8,13 +10,14 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class ResetPasswordComponent implements OnInit {
   hasErrors = false;
+  isSuccess = false;
   userName= "";
   passwordResetToken="";
   errorMessage = "";
   form: any = {
     newPassword: null
   };
-  constructor(private router: ActivatedRoute) { }
+  constructor(private router: ActivatedRoute, private navigator: Router, private authService: AuthService) { }
 
   ngOnInit(): void {
     this.router.queryParams.subscribe(res => {
@@ -24,6 +27,21 @@ export class ResetPasswordComponent implements OnInit {
   }
 
   onSubmit(): void {
-    console.log("Doing the reset dance for user : " + this.userName + "\nwith token: \n" + this.passwordResetToken);
+    this.authService
+      .resetPassword(this.userName, this.passwordResetToken, this.form.newPassword)
+      .subscribe(
+        { 
+          next: _ => {
+            this.isSuccess = true;
+            setTimeout(() => { 
+              console.log("Redirecting to login page")
+              this.navigator.navigate(["/login"]); }, 3000);
+          },
+          error: err => {
+            this.errorMessage = err.error.message;
+            this.hasErrors = true;
+          }
+        }
+      );
   }
 }

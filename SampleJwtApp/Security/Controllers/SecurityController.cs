@@ -119,11 +119,11 @@ namespace SampleJwtApp.Security.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet]
+        [HttpPost]
         [Route("ResetPassword")]
-        public async Task<IActionResult> ResetPassword(string username, string token, string newpassword)
+        public async Task<IActionResult> ResetPassword([FromBody] ChangePasswordViewModel changePassword)
         {
-            var result = await securityService.ResetPassword(username, token, newpassword);
+            var result = await securityService.ResetPassword(changePassword.Username, changePassword.Token, changePassword.NewPassword);
             if (result)
             {
                 return Ok();

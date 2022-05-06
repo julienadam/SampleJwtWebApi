@@ -124,7 +124,7 @@ namespace SampleJwtApp.Security.Services
             var token = await userManager.GeneratePasswordResetTokenAsync(user);
             
             frontUrl = configuration["Front:BaseUrl"];
-            var url = $"{frontUrl}/reset-password.html?username={Uri.EscapeDataString(user.UserName)}&token={token}";
+            var url = $"{frontUrl}/reset-password?username={Uri.EscapeDataString(user.UserName)}&token={Uri.EscapeDataString(token)}";
             return  await sender.SendEmail(email, "Reset password", "Please confirm by clicking the following link.\r\n\r\n" + url);
         }
 

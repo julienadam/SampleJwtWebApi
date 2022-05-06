@@ -27,4 +27,12 @@ export class AuthService {
       phoneNo: phoneNumber
     }, httpOptions);
   }
+
+  resetPassword(username: string, token: string, password: string): Observable<any> {
+    return this.http.post(API_URL + 'ResetPassword', {
+      username,
+      token,
+      newpassword : password
+    }, httpOptions);
+  }
 }
