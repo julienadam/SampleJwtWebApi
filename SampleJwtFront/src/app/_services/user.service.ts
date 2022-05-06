@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-const API_URL = 'https://localhost:7212/api/Products/';
+import { environment } from 'src/environments/environment';
+const API_URL = environment.backUrl + 'Products/';
+
 @Injectable({
   providedIn: 'root'
 })
