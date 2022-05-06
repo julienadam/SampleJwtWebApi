@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  backUrl: "https://localhost:7212/api/Security/"
+  backUrl: "https://localhost:7212/api/"
 };
 
 /*
